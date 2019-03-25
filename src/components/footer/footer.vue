@@ -1,9 +1,19 @@
 <template>
   <div class="footer">
-    <cube-tab-bar v-model="selectedLabel" @change="changeHandler">
-      <cube-tab v-for="(item) in tabs" :key="item.label" :label="item.label">
+    <cube-tab-bar
+      @change="changeHandler"
+      v-model="selectedLabel"
+    >
+      <cube-tab
+        :key="item.label"
+        :label="item.label"
+        v-for="(item) in tabs"
+      >
         <!-- name为icon的插槽 -->
-        <i slot="icon" :class="item.icon"></i>
+        <i
+          :class="item.icon"
+          slot="icon"
+        ></i>
         <!-- 默认插槽 -->
       </cube-tab>
     </cube-tab-bar>
@@ -41,8 +51,13 @@ export default {
   },
   watch: {
     '$route.name'(val) {
+      console.log(val)
       this.selectedLabel = val || 'home'
     }
+  },
+  mounted() {
+    this.selectedLabel = this.$route.name || 'home'
+    console.log(this.$route.name)
   }
 }
 </script>

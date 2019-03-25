@@ -7,6 +7,7 @@ import store from './store/'
 import 'common/stylus/index.styl'
 import fastclick from 'fastclick'
 import Storage from 'good-storage'
+import { Loading } from 'common/js/mixins'
 
 Vue.config.productionTip = false
 
@@ -27,6 +28,7 @@ router.beforeEach((to, from, next) => {
   next()
 })
 
+Vue.mixin(Loading)
 new Vue({
   router,
   store,

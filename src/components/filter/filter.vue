@@ -13,11 +13,25 @@ export default {
       time: '不限时间',
       distance: '不限距离',
       key: '',
-      type: '不限类型'
+      type: '不限类型',
+      values: {
+        time: '',
+        distance: '',
+        type: ''
+      }
     }
   },
-
   methods: {
+    reset() {
+      this.time = '不限时间'
+      this.distance = '不限距离'
+      this.type = '不限类型'
+      this.values = {
+        time: '',
+        distance: '',
+        type: ''
+      }
+    },
     showPicker(type) {
       this.key = type
       if (!this.picker) {
@@ -34,15 +48,11 @@ export default {
       this.picker.show()
     },
     selectHandle(selectedVal, selectedIndex, selectedText) {
-      this[this.key] = selectedVal[0]
+      console.log(selectedVal, selectedText)
+      this[this.key] = selectedText[0]
+      this.values[this.key] = selectedVal[0]
+      this.$emit('filter-change', this.values)
     }
-    // cancelHandle() {
-    //   this.$createToast({
-    //     type: 'correct',
-    //     txt: 'Picker canceled',
-    //     time: 1000
-    //   }).show()
-    // }
   }
 }
 </script>

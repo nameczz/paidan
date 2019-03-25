@@ -1,5 +1,5 @@
 import http from './index'
-
+import _ from 'lodash/fp/object'
 export default class BaseModel {
   constructor(props) {
     // 用来new this绑定数据 defaults 可能有一些默认配置
@@ -15,7 +15,12 @@ export default class BaseModel {
     try {
       const res = await http(httpConfig)
       const data = res.data.data || []
-      let list = Array.isArray(data) ? data : data.items
+      let list = Array.isArray(data)
+        ? data
+        : data.items
+        ? data.items
+        : _.values(data)
+
       if (!Array.isArray(list)) return list
       list = list.map(type => {
         return new this(type)

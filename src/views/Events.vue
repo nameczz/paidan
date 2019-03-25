@@ -1,63 +1,76 @@
 <template>
   <div class="events">
-    <cube-tab-bar v-model="selectedLabelDefault" showSlider :data="tabs" @change="changeHandler"></cube-tab-bar>
-    <p-filter></p-filter>
-    <div class="scroll-wrapper">
+    <cube-tab-bar
+      :data="tabs"
+      @change="changeHandler"
+      showSlider
+      v-model="selectedLabel"
+    ></cube-tab-bar>
+    <p-filter
+      @filter-change="filterChange"
+      ref="filter"
+    ></p-filter>
+    <div
+      class="scroll-wrapper"
+      v-if="allEvents.length"
+    >
       <cube-scroll
-        ref="scroll"
         :data="events"
         :options="options"
         @pulling-down="onPullingDown"
         @pulling-up="onPullingUp"
+        ref="scroll"
       >
-        <card title="测试" v-for="item in events" :key="item.id">
+        <card
+          :key="item.id"
+          :title="item.name"
+          v-for="item in events"
+        >
           <template slot="content">
-            <div class="content">
-              <p v-for="content in item.content" :key="content">{{content}}</p>
-            </div>
+            <p v-if="item.address">事件位置：{{item.address}}</p>
+            <p v-if="item.time">报警时间：{{item.time}}</p>
           </template>
-          <template slot="right">
+          <!-- <template slot="right">
             <div class="right">
               <img src="~common/img/logo.png">
             </div>
-          </template>
+          </template>-->
         </card>
       </cube-scroll>
     </div>
+    <p
+      class="no-data"
+      v-else
+    >无数据</p>
   </div>
 </template>
 
 <script>
 import PFilter from 'components/filter/filter'
+import Map from '@/api/map'
 
 export default {
   name: 'events',
   components: { PFilter },
   data() {
     return {
-      selectedLabelDefault: 1,
+      selectedLabel: 0,
       tabs: [
         {
           label: '可接单事件',
-          value: 1
+          value: 0
         },
         {
           label: '待处理事件',
-          value: 2
+          value: 1
         },
         {
           label: '已处理事件',
-          value: 3
+          value: 2
         }
       ],
-      events: [
-        { title: '测试', content: ['123', '456', '234'], id: 1 },
-        { title: '测试', content: ['123', '456', '234'], id: 2 },
-        { title: '测试', content: ['123', '456', '234'], id: 3 },
-        { title: '测试', content: ['123', '456', '234'], id: 4 },
-        { title: '测试', content: ['123', '456', '234'], id: 5 },
-        { title: '测试', content: ['123', '456', '234'], id: 6 }
-      ],
+      events: [],
+      allEvents: [],
       pullDownRefresh: true,
       pullDownRefreshThreshold: 60,
       pullDownRefreshStop: 40,
@@ -98,37 +111,69 @@ export default {
         : false
     }
   },
-
   methods: {
-    changeHandler(label) {
-      console.log(label)
+    async getUnreceived() {
+      const res = await Map.getUnreceived(this.params)
+      this.allEvents = res
+      this.events = this.allEvents.splice(0, 10)
+    },
+    async getProcessEvents() {
+      const res = await Map.getProcessEvents(this.params)
+      this.allEvents = res
+      this.events = this.allEvents.splice(0, 10)
+    },
+    async changeHandler(val, flag) {
+      if (!flag) {
+        this.$refs.filter.reset()
+        this.params = {
+          time: '',
+          distance: '',
+          type: ''
+        }
+      }
+      switch (val) {
+        case 0:
+          this._fetchData('getUnreceived')
+          break
+        case 1:
+          this._fetchData('getProcessEvents')
+          break
+        default:
+          break
+      }
     },
     onPullingDown() {
-      // 模拟更新数据
-      setTimeout(() => {
-        if (Math.random() > 0.5) {
-          // 如果有新数据
-          console.log('更新')
-          this.$refs.scroll.forceUpdate()
-        } else {
-          // 如果没有新数据
-          this.$refs.scroll.forceUpdate()
-        }
-      }, 1000)
+      if (this.allEvents.length) {
+        // 如果有新数据
+        this.changeHandler(this.selectedLabel)
+      } else {
+        // 如果没有新数据
+        this.$refs.scroll.forceUpdate()
+      }
     },
+
     onPullingUp() {
       // 模拟更新数据
-      setTimeout(() => {
-        if (Math.random() > 0.5) {
-          // 如果有新数据
-          console.log('更新')
-          this.$refs.scroll.forceUpdate()
-        } else {
-          // 如果没有新数据
-          this.$refs.scroll.forceUpdate()
-        }
-      }, 1000)
+      if (this.allEvents.length) {
+        // 如果有新数据
+        this.events.push(...this.allEvents.splice(0, 10))
+      } else {
+        // 如果没有新数据
+        this.$refs.scroll.forceUpdate()
+      }
+    },
+    filterChange(data) {
+      this.params = data
+      this.changeHandler(this.selectedLabel, true)
     }
+  },
+  mounted() {
+    this.params = {
+      time: '',
+      distance: '',
+      type: ''
+    }
+    this._fetchData('getUnreceived')
   }
 }
 </script>
@@ -152,5 +197,16 @@ export default {
   bottom: 0;
   top: 50px;
   overflow: hidden;
+
+  p {
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+}
+
+.no-data {
+  margin-top: 40px;
+  font-size: 18px;
+  text-align: center;
 }
 </style>

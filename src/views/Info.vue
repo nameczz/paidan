@@ -1,6 +1,11 @@
 <template>
   <div class="info">
-    <cube-tab-bar v-model="selectedLabel" showSlider :data="tabs" @change="changeHandler"></cube-tab-bar>
+    <cube-tab-bar
+      :data="tabs"
+      @change="changeHandler"
+      showSlider
+      v-model="selectedLabel"
+    ></cube-tab-bar>
     <div class="time-picker">
       <span>已选时间段:</span>
       <p @click="showDateSegmentPicker">{{time}}</p>

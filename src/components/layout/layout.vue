@@ -2,7 +2,9 @@
   <div class="layout">
     <p-header></p-header>
     <div class="main">
-      <router-view/>
+      <keep-alive>
+        <router-view/>
+      </keep-alive>
     </div>
     <p-footer></p-footer>
   </div>
