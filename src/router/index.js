@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 Vue.use(Router)
+const Login = () => import('@/views/Login/index')
 const Home = () => import('@/views/Home')
 const Events = () => import('@/views/Events')
 const Info = () => import('@/views/Info')
@@ -12,7 +13,12 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: { name: 'home' }
+      redirect: { name: 'login' }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
     },
     {
       path: '/home',
